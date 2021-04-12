@@ -1,0 +1,45 @@
+---
+- name: Install dependencies
+  apt:
+    name: "{{ elastic_apm_server_dependencies }}"
+    state: present
+    update_cache: true
+
+- name: Add Elastic signing key
+  apt_key:
+    state: present
+    url: "{{ elastic_apm_server_signing_key }}"
+
+- name: Manage Elastic APT repository
+  apt_repository:
+    repo: "{{ elastic_apm_server_repository }}"
+    state: "{{ 'absent' if elastic_apm_server_use_oss else 'present' }}"
+
+- name: Manage Elastic OSS APT repository
+  apt_repository:
+    repo: "{{ elastic_apm_server_oss_repository }}"
+    state: "{{ 'present' if elastic_apm_server_use_oss else 'absent' }}"
+
+- name: Ensure Elastic APM server package is installed
+  apt:
+    name: apm-server
+    state: present
+    update_cache: true
+  notify:
+    - restart APM server
+
+- name: Setup apm-server.yml
+  template:
+    dest: /etc/apm-server/apm-server.yml
+    group: apm-server
+    mode: 0600
+    owner: apm-server
+    src: apm-server.yml.j2
+  notify:
+    - restart APM server
+
+- name: Ensure Elastic APM server is started and starts at boot
+  service:
+    enabled: true
+    name: apm-server
+    state: started
