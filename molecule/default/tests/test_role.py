@@ -36,11 +36,3 @@ def test_service_is_running_and_enabled(host, name):
     service = host.service(name)
     assert service.is_enabled
     assert service.is_running
-
-
-@pytest.mark.parametrize('endpoint', [
-  ('http://127.0.0.1:8200/'),
-])
-def test_apm_server_is_reachable(endpoint):
-    response = requests.get(endpoint)
-    assert response.status_code == 200
