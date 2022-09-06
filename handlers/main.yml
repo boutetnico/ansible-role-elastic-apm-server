@@ -1,5 +1,5 @@
 ---
-- name: restart APM server
-  service:
+- name: Restart APM server
+  ansible.builtin.service:
     name: apm-server
     state: restarted
